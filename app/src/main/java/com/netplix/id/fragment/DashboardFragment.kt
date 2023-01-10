@@ -1,35 +1,46 @@
 package com.netplix.id.fragment
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
 import com.netplix.id.R
-import com.netplix.id.adapter.SliderAdapter
+import com.netplix.id.adapter.GenreHorizontalAdapter
+import com.netplix.id.adapter.MovieAdapter
+import com.netplix.id.adapter.MovieHorizontalAdapter
+import com.netplix.id.adapter.MovieHorizontalLastAdapter
 import com.netplix.id.databinding.FragmentDashboardBinding
-import com.netplix.id.model.Image
+import com.netplix.id.model.Genre
+import com.netplix.id.viewmodel.DashboardViewModel
+import com.netplix.id.model.Result
+import com.ramotion.cardslider.CardSliderLayoutManager
+import com.ramotion.cardslider.CardSnapHelper
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
 
 
 class DashboardFragment : Fragment() {
 
-    private var adapterImageSlider: SliderAdapter? = null
-    private var runnable: Runnable? = null
-    private val handler = Handler()
+    private lateinit var movieAdapter: MovieAdapter
+    private lateinit var genreHorizontalAdapter: GenreHorizontalAdapter
+    private lateinit var movieHorizontalAdapter: MovieHorizontalAdapter
+    private lateinit var movieHorizontalLastAdapter: MovieHorizontalLastAdapter
+    private var viewModel: DashboardViewModel? = null
 
-    private var dataItems = arrayListOf<Image>(
-        Image(R.drawable.movie, "Dui fringilla ornare finibus, orci odio", "Foggy Hill"),
-        Image(R.drawable.movie, "Mauris sagittis non elit quis fermentum", "The Backpacker"),
-        Image(R.drawable.movie, "Mauris ultricies augue sit amet est sollicitudin", "River Forest"),
-        Image(R.drawable.movie, "Suspendisse ornare est ac auctor pulvinar", "Mist Mountain"),
-        Image(R.drawable.movie, "Vivamus laoreet aliquam ipsum eget pretium", "Side Park")
-    )
+    private val genreArrayList: ArrayList<Genre> = java.util.ArrayList<Genre>()
+    private val movieArrayList: ArrayList<Result> = java.util.ArrayList<Result>()
 
     private var binding: FragmentDashboardBinding? = null
+    private val dashboardViewModel: DashboardViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,90 +50,84 @@ class DashboardFragment : Fragment() {
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val root: View = binding!!.getRoot()
 
-        init()
-        setupUI()
+        loadRecylerView()
+        getData()
 
         return root
     }
 
-    private fun init() {
-        adapterImageSlider = SliderAdapter(requireActivity(), arrayListOf())
-        binding!!.pager!!.adapter = adapterImageSlider
-    }
+    private fun loadRecylerView() {
+        movieHorizontalAdapter = MovieHorizontalAdapter{
+                position ->  onListItemClick(position)
+        }
+        binding!!.rvNowPlaying.setAdapter(AlphaInAnimationAdapter(movieHorizontalAdapter!!))
+        binding!!.rvNowPlaying.setHasFixedSize(true)
+        binding!!.rvNowPlaying.setLayoutManager(CardSliderLayoutManager(requireActivity()))
+        CardSnapHelper().attachToRecyclerView(binding!!.rvNowPlaying)
+        val alphaInAnimationAdapter = AlphaInAnimationAdapter(movieHorizontalAdapter!!)
+        alphaInAnimationAdapter.setDuration(1000)
+        alphaInAnimationAdapter.setInterpolator(OvershootInterpolator())
+        alphaInAnimationAdapter.setFirstOnly(false)
 
-    private fun setupUI() {
-        getData()
+        genreHorizontalAdapter = GenreHorizontalAdapter{
+                position ->  onListItemClick2(position)
+        }
+        binding!!.rvGendre.setAdapter(AlphaInAnimationAdapter(genreHorizontalAdapter!!))
+        binding!!.rvGendre.setHasFixedSize(true)
+        binding!!.rvGendre.layoutManager = LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL ,false)
+        val alphaInAnimationAdapter2 = AlphaInAnimationAdapter(genreHorizontalAdapter!!)
+        alphaInAnimationAdapter2.setDuration(1000)
+        alphaInAnimationAdapter2.setInterpolator(OvershootInterpolator())
+        alphaInAnimationAdapter2.setFirstOnly(false)
 
-        // displaying selected image first
-        binding!!.pager!!.currentItem = 0
-        addBottomDots(binding!!.llDots, adapterImageSlider!!.count, 0)
-        binding!!.tvTitle?.text = adapterImageSlider!!.getItem(0).name
-        binding!!.tvPlace?.text = adapterImageSlider!!.getItem(0).place
-
-        handleViewPager()
-
-        startAutoSlider(adapterImageSlider!!.count)
+        movieAdapter = MovieAdapter{
+                position ->  onListItemClick3(position)
+        }
+        binding!!.rvFilm.setAdapter(AlphaInAnimationAdapter(movieAdapter!!))
+        binding!!.rvFilm.setHasFixedSize(true)
+        binding!!.rvFilm.layoutManager = LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL ,false)
+        val alphaInAnimationAdapter3 = AlphaInAnimationAdapter(movieAdapter!!)
+        alphaInAnimationAdapter3.setDuration(1000)
+        alphaInAnimationAdapter3.setInterpolator(OvershootInterpolator())
+        alphaInAnimationAdapter3.setFirstOnly(false)
     }
 
     private fun getData() {
-        retrieveList(dataItems)
-    }
+        dashboardViewModel.apply {
+            setListMovie()
+            mainListMovie.observe(requireActivity()) {
 
-    private fun retrieveList(items: List<Image>) {
-        adapterImageSlider?.apply {
-            setItems(items)
-            notifyDataSetChanged()
-        }
-    }
+                movieArrayList.clear()
+                movieHorizontalAdapter?.setDataList(it.results as ArrayList<Result>)
 
-    private fun handleViewPager() {
-        binding!!.pager!!.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(
-                pos: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
+                movieHorizontalLastAdapter?.setDataList(it.results as ArrayList<Result>)
             }
-
-            override fun onPageSelected(pos: Int) {
-                binding!!.tvTitle?.text = adapterImageSlider!!.getItem(pos).name
-                binding!!.tvPlace?.text = adapterImageSlider!!.getItem(pos).place
-                addBottomDots(binding!!.llDots, adapterImageSlider!!.count, pos)
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {}
-        })
-    }
-
-    private fun addBottomDots(llDots: LinearLayout?, size: Int, current: Int) {
-        val dots = arrayOfNulls<ImageView>(size)
-        llDots!!.removeAllViews()
-        for (i in dots.indices) {
-            dots[i] = ImageView(requireActivity())
-            val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams(15, 15))
-            params.setMargins(10, 10, 10, 10)
-            dots[i]!!.layoutParams = params
-            dots[i]!!.setImageResource(R.drawable.shape_circle_outline)
-            llDots.addView(dots[i])
-        }
-        if (dots.isNotEmpty()) {
-            dots[current]!!.setImageResource(R.drawable.shape_circle)
         }
     }
 
-    private fun startAutoSlider(count: Int) {
-        runnable = Runnable {
-            var pos = binding!!.pager!!.currentItem
-            pos += 1
-            if (pos >= count) pos = 0
-            binding!!.pager!!.currentItem = pos
-            handler.postDelayed(runnable!!, 3000)
-        }
-        handler.postDelayed(runnable!!, 3000)
+    private fun onListItemClick3(position: Int) {
+        Log.e("posisi", position.toString())
+
+        val bundle = Bundle()
+        bundle.putParcelableArrayList(
+            "detailovie", movieArrayList
+        )
+        bundle.putInt("posisilist",position)
+        val fragementIntent = DetailMovieFragment()
+        val manager = activity?.supportFragmentManager
+        val transaction = manager?.beginTransaction()
+        transaction?.replace(R.id.fl_view, fragementIntent)
+        fragementIntent.setArguments(bundle)
+        transaction?.addToBackStack(null)
+        transaction?.commit()
     }
 
-    override fun onDestroy() {
-        if (runnable != null) handler.removeCallbacks(runnable!!)
-        super.onDestroy()
+    private fun onListItemClick2(position: Int) {
+        binding!!.tvRekomendasi.setText(genreArrayList[position].name)
+//        viewModel?.panggilapilistbygenre(genreArrayList[position].id)
+    }
+
+    private fun onListItemClick(position: Int) {
+        //Toast.makeText(this, mRepos[position].name, Toast.LENGTH_SHORT).show()
     }
 }
