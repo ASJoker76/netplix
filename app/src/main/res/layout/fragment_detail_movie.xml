@@ -5,32 +5,32 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark">
 
-    <com.github.florent37.diagonallayout.DiagonalLayout
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        app:diagonal_angle="10"
-        app:diagonal_direction="left"
-        app:diagonal_position="bottom">
+<!--    <com.github.florent37.diagonallayout.DiagonalLayout-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="250dp"-->
+<!--        app:diagonal_angle="10"-->
+<!--        app:diagonal_direction="left"-->
+<!--        app:diagonal_position="bottom">-->
 
-        <com.flaviofaria.kenburnsview.KenBurnsView
-            android:id="@+id/imgCover"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
-            android:scaleType="fitXY" />
+<!--        <com.flaviofaria.kenburnsview.KenBurnsView-->
+<!--            android:id="@+id/imgCover"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:background="@color/colorPrimary"-->
+<!--            android:scaleType="fitXY" />-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_gravity="bottom"
-            android:layout_marginStart="-50dp"
-            android:layout_marginEnd="-50dp"
-            android:background="@drawable/bg_overlay"
-            android:orientation="horizontal"
-            android:rotation="-10" />
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="100dp"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:layout_marginStart="-50dp"-->
+<!--            android:layout_marginEnd="-50dp"-->
+<!--            android:background="@drawable/bg_overlay"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:rotation="-10" />-->
 
-    </com.github.florent37.diagonallayout.DiagonalLayout>
+<!--    </com.github.florent37.diagonallayout.DiagonalLayout>-->
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

@@ -113,10 +113,10 @@ class DetailMovieFragment : Fragment(){
             binding.ratingBar.setStepSize(0.5.toFloat())
             binding.ratingBar.setRating(newValue / 2)
 
-            Glide.with(this)
-                .load(URLIMAGE + movieArrayList[posisilist].backdrop_path)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.imgCover)
+//            Glide.with(this)
+//                .load(URLIMAGE + movieArrayList[posisilist].backdrop_path)
+//                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                .into(binding.imgCover)
 
             Glide.with(this)
                 .load(URLIMAGE + movieArrayList[posisilist].poster_path)

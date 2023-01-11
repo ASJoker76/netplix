@@ -33,8 +33,6 @@ class DashboardFragment : Fragment() {
     private lateinit var movieAdapter: MovieAdapter
     private lateinit var genreHorizontalAdapter: GenreHorizontalAdapter
     private lateinit var movieHorizontalAdapter: MovieHorizontalAdapter
-    private lateinit var movieHorizontalLastAdapter: MovieHorizontalLastAdapter
-    private var viewModel: DashboardViewModel? = null
 
     private val genreArrayList: ArrayList<Genre> = java.util.ArrayList<Genre>()
     private val movieArrayList: ArrayList<Result> = java.util.ArrayList<Result>()
@@ -95,12 +93,23 @@ class DashboardFragment : Fragment() {
     private fun getData() {
         dashboardViewModel.apply {
             setListMovie()
+            setListGenre()
             mainListMovie.observe(requireActivity()) {
 
                 movieArrayList.clear()
                 movieHorizontalAdapter?.setDataList(it.results as ArrayList<Result>)
 
-                movieHorizontalLastAdapter?.setDataList(it.results as ArrayList<Result>)
+                movieAdapter?.setDataList(it.results as ArrayList<Result>)
+                movieArrayList.addAll(it.results)
+            }
+            mainListGendre.observe(requireActivity()){
+                genreHorizontalAdapter?.setDataList(it.genres as ArrayList<Genre>)
+                genreArrayList.addAll(it.genres)
+            }
+            mainListByGendre.observe(requireActivity()){
+                movieArrayList.clear()
+                movieAdapter?.setDataList(it.results as ArrayList<Result>)
+                movieArrayList.addAll(it.results)
             }
         }
     }
@@ -124,7 +133,9 @@ class DashboardFragment : Fragment() {
 
     private fun onListItemClick2(position: Int) {
         binding!!.tvRekomendasi.setText(genreArrayList[position].name)
-//        viewModel?.panggilapilistbygenre(genreArrayList[position].id)
+        dashboardViewModel.apply {
+            setListbygenre(genreArrayList[position].id)
+        }
     }
 
     private fun onListItemClick(position: Int) {

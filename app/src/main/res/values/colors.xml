@@ -10,6 +10,9 @@
 
     <color name="red">#E50914</color>
 
+    <color name="colorRating">#FBC02D</color>
+    <color name="colorDark">#414449</color>
+
     <color name="colorPrimary">#1976D2</color>
     <color name="colorPrimaryDark">#1565C0</color>
     <color name="colorPrimaryLight">#1E88E5</color>
